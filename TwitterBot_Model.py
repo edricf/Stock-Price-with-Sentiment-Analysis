@@ -5,13 +5,13 @@ Edric Franco
 
 from twitterscraper import query_tweets
 from pattern.web import Twitter
+from textblob import TextBlob
 # from utils import clean_tweet
 
 import datetime as dt
 import pandas as pd
 import pandas_datareader.data as web
-from textblob import TextBlob
-
+import os
 
 class Twitter_Sentiment_Bot():
 
@@ -29,33 +29,43 @@ class Twitter_Sentiment_Bot():
 		self.df = pd.DataFrame()
 		self.start = begin_date
 		self.end = end_date
+		self.pointer = self.start + dt.timedelta(days=1)
 
 	def _get_tweet(self, limit=100, lang='english'):
-
 		'''
 		This method creates a dataframe consisting of the scraped tweets with the corresponding timestamp
-
 		Args:
         - ticker string: ticker symbol of stock
         - limit int: amount of tweets per day
         - lang string: language of tweet
-
 		'''
-
-		tweets = query_tweets(self.ticker, begindate=begin_date,
-		                      enddate = end_date, limit=limit, lang=lang)
-
-		self.df = pd.DataFrame([t.text, t.timestamp] for t in tweets)
-		self.df[1] = self.df[1].dt.date
+		while self.pointer != self.end:		
+			try:
+				print(self.start)
+				tweets = query_tweets(self.ticker, begindate = self.start,
+				                      enddate = self.pointer, limit=limit, lang=lang)
+				print(self.pointer)
+				df = pd.DataFrame([t.text, t.timestamp] for t in tweets)
+				df[1] = df[1].dt.date
+				print(df)
+				self.df = pd.concat([self.df, df])
+				print(self.df)
+				self.start = self.pointer
+				self.pointer = self.start + dt.timedelta(days=1)
+			except:
+				self.start = self.pointer
+				self.pointer = self.start + dt.timedelta(days=1)
 
 	def _sentiment_score(self):
 		'''
 		This method adds the sentiment score using TextBlob API	on the dataframe
 		'''
 		self.df['sentiment'] = self.df[0].apply(lambda x: TextBlob(x).sentiment.polarity)
-		self.df.columns=[['Tweet', 'Date', 'sentiment']]
+		self.df.columns=['Tweet', 'Date', 'sentiment']
 		self.df = self.df[['Date', 'sentiment']]
-		self.df.groupby(['Date']).mean()
+		self.df = self.df.groupby(['Date']).mean()
+		self.df.reset_index(level=0, inplace=True)
+		self.df['Date'] = pd.to_datetime(self.df['Date'])
 
 	def _merge_stock_data(self):
 		'''
@@ -64,8 +74,8 @@ class Twitter_Sentiment_Bot():
 		df_prices = web.DataReader(self.ticker, 'yahoo', self.start, self.end)
 		df_prices.reset_index(inplace=True)
 		df_prices = df_prices[['Date', 'Adj Close']]
-		self.df.merge(df_prices, on='Date', how='left')
-		self.df = df_prices.merge(self.df, on=['Date','Date'])
+		self.df = self.df.merge(df_prices, on='Date', how='left')
+
 
 	def run_all(self, limit=100, lang='english'):
 		'''
@@ -75,27 +85,27 @@ class Twitter_Sentiment_Bot():
 		output:
 		dataframe consisting of our desired output
 		'''
-		df = self._get_tweet(limit=limit, lang='english')
+		self._get_tweet(limit=limit, lang=lang)
 		self._sentiment_score()
 		self._merge_stock_data()
-		return self.df
 
 
 
 
 if __name__ == '__main__':
 	ticker='AAPL'
-	begin_date=dt.date(2018,1 ,1)
-	end_date=dt.date(2018, 12, 31)
+	begin_date=dt.date(2019,1 ,1)
+	end_date= dt.date(2019, 1, 3)
 
 	scrap = Twitter_Sentiment_Bot(ticker=ticker,
 		                          begin_date=begin_date,
 		                          end_date=end_date)
 
-	limit = 100
+	limit = 2
 	lang = 'english'
-	df = scrap.run_all(limit=limit,
+	scrap.run_all(limit=limit,
 		               lang=lang)
+	df = scrap.df
 
 	if not os.path.exists('./data/'):
 	    os.makedirs('./data/')
