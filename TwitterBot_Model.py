@@ -19,10 +19,10 @@ class Twitter_Sentiment_Bot():
 		'''
 		This class represents a Twitter sentiment analysis model
 
-        Args:
-        - ticker string: ticker symbol of stock
-        - begin_date datetime: start date we want to scrape
-        - end_date datetime: end date we wan_t to scrape
+		Args:
+		- ticker string: ticker symbol of stock
+		- begin_date datetime: start date we want to scrape
+		- end_date datetime: end date we wan_t to scrape
 		'''
 		self.ticker = ticker
 		self.df = pd.DataFrame()
@@ -34,9 +34,9 @@ class Twitter_Sentiment_Bot():
 		'''
 		This method creates a dataframe consisting of the scraped tweets with the corresponding timestamp
 		Args:
-        - ticker string: ticker symbol of stock
-        - limit int: amount of tweets per day
-        - lang string: language of tweet
+		- ticker string: ticker symbol of stock
+		- limit int: amount of tweets per day
+		- lang string: language of tweet
 		'''
 		while self.pointer != self.end:		
 			try:
