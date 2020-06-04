@@ -23,7 +23,6 @@ class Twitter_Sentiment_Bot():
         - ticker string: ticker symbol of stock
         - begin_date datetime: start date we want to scrape
         - end_date datetime: end date we wan_t to scrape
-
 		'''
 		self.ticker = ticker
 		self.df = pd.DataFrame()
