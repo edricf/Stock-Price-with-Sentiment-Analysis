@@ -15,14 +15,15 @@ import os
 
 class Twitter_Sentiment_Bot():
 
-	def __init__(self, ticker='TSLA', begin_date=dt.date(2018,1 ,1), end_date=dt.date(2018, 12, 31)):
+	def __init__(self, ticker='AAPL', begin_date=dt.date(2018,1 ,1), end_date=dt.date(2018, 12, 31)):
 		'''
+		
 		This class represents a Twitter sentiment analysis model
-
-        Args:
-        - ticker string: ticker symbol of stock
-        - begin_date datetime: start date we want to scrape
-        - end_date datetime: end date we wan_t to scrape
+		Args:
+		- ticker string: ticker symbol of stock
+		- begin_date datetime: start date we want to scrape
+		- end_date datetime: end date we wan_t to scrape
+		
 		'''
 		self.ticker = ticker
 		self.df = pd.DataFrame()
@@ -33,11 +34,13 @@ class Twitter_Sentiment_Bot():
 
 	def _get_tweet(self, limit=100, lang='english'):
 		'''
+		
 		This method creates a dataframe consisting of the scraped tweets with the corresponding timestamp
 		Args:
-        - ticker string: ticker symbol of stock
-        - limit int: amount of tweets per day
-        - lang string: language of tweet
+		- ticker string: ticker symbol of stock
+		- limit int: amount of tweets per day
+		- lang string: language of tweet
+		
 		'''
 		while self.pointer != self.end:		
 			try:
@@ -84,9 +87,6 @@ class Twitter_Sentiment_Bot():
 		'''
 		This method creates a dataframe with 4 columns,
 		Tweets, Date, sentiment score and adjusted closing prices for the ticker selected
-
-		output:
-		dataframe consisting of our desired output
 		'''
 		self._get_tweet(limit=limit, lang=lang)
 		self._sentiment_score()
@@ -106,8 +106,9 @@ if __name__ == '__main__':
 
 	limit = 5
 	lang = 'english'
+	
 	scrap.run_all(limit=limit,
-		               lang=lang)
+		      lang=lang)
 	df = scrap.df
 	print(df)
 
