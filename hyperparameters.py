@@ -1,4 +1,7 @@
-
+'''
+Edric Franco
+12/2018
+'''
 SVM_PARAMS = {
 	'kernel':'rbf',
 	'degree':3,
