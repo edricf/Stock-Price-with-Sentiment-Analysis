@@ -15,28 +15,29 @@ import os
 
 class Twitter_Sentiment_Bot():
 
-	def __init__(self, ticker='AAPL', begin_date=dt.date(2018,1 ,1), end_date=dt.date(2018, 12, 31)):
+	def __init__(self, ticker='TSLA', begin_date=dt.date(2018,1 ,1), end_date=dt.date(2018, 12, 31)):
 		'''
 		This class represents a Twitter sentiment analysis model
 
-		Args:
-		- ticker string: ticker symbol of stock
-		- begin_date datetime: start date we want to scrape
-		- end_date datetime: end date we wan_t to scrape
+        Args:
+        - ticker string: ticker symbol of stock
+        - begin_date datetime: start date we want to scrape
+        - end_date datetime: end date we wan_t to scrape
 		'''
 		self.ticker = ticker
 		self.df = pd.DataFrame()
 		self.start = begin_date
 		self.end = end_date
+		self.begindate = self.start
 		self.pointer = self.start + dt.timedelta(days=1)
 
 	def _get_tweet(self, limit=100, lang='english'):
 		'''
 		This method creates a dataframe consisting of the scraped tweets with the corresponding timestamp
 		Args:
-		- ticker string: ticker symbol of stock
-		- limit int: amount of tweets per day
-		- lang string: language of tweet
+        - ticker string: ticker symbol of stock
+        - limit int: amount of tweets per day
+        - lang string: language of tweet
 		'''
 		while self.pointer != self.end:		
 			try:
@@ -46,7 +47,6 @@ class Twitter_Sentiment_Bot():
 				print(self.pointer)
 				df = pd.DataFrame([t.text, t.timestamp] for t in tweets)
 				df[1] = df[1].dt.date
-				print(df)
 				self.df = pd.concat([self.df, df])
 				print(self.df)
 				self.start = self.pointer
@@ -70,10 +70,14 @@ class Twitter_Sentiment_Bot():
 		'''
 		This method adds the stock prices to the dataframe
 		'''
-		df_prices = web.DataReader(self.ticker, 'yahoo', self.start, self.end)
-		df_prices.reset_index(inplace=True)
-		df_prices = df_prices[['Date', 'Adj Close']]
-		self.df = self.df.merge(df_prices, on='Date', how='left')
+		try:
+			df_prices = web.DataReader(self.ticker, 'yahoo', self.begindate, self.end)
+			print(df_prices)
+			df_prices.reset_index(inplace=True)
+			df_prices = df_prices[['Date', 'Adj Close']]
+			self.df = self.df.merge(df_prices, on='Date', how='left')
+		except:
+			pass
 
 
 	def run_all(self, limit=100, lang='english'):
@@ -93,18 +97,19 @@ class Twitter_Sentiment_Bot():
 
 if __name__ == '__main__':
 	ticker='AAPL'
-	begin_date=dt.date(2019,1 ,1)
-	end_date= dt.date(2019, 1, 3)
+	begin_date=dt.date(2018,1 ,1)
+	end_date= dt.date(2018, 12, 31)
 
 	scrap = Twitter_Sentiment_Bot(ticker=ticker,
 		                          begin_date=begin_date,
 		                          end_date=end_date)
 
-	limit = 2
+	limit = 5
 	lang = 'english'
 	scrap.run_all(limit=limit,
 		               lang=lang)
 	df = scrap.df
+	print(df)
 
 	if not os.path.exists('./data/'):
 	    os.makedirs('./data/')
