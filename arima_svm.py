@@ -1,5 +1,5 @@
 '''
-E.Franco
+Edric Franco
 12/2018
 '''
 
@@ -36,7 +36,7 @@ class ARIMA_SVM():
 		model = SVR(**SVM_PARAMS)
 		model.fit(x_train, y_train)
 		self.svm_train_pred = pd.DataFrame(model.predict(x_train), index=y_train.index, columns=['log_price'])
-		self.resid = self.svm_train_pred - y_train
+		self.resid = y_train - self.svm_train_pred
 		self.pred_test = model.predict(x_test)
 
 	def _fit_predict_ARIMA(self):
@@ -51,9 +51,7 @@ class ARIMA_SVM():
 		ts_model.fit(self.resid)
 		forecasted_resid = ts_model.predict(n_periods=1)
 		return forecasted_resid
-
-
-
+	
 	def fit_predict(self, x_train, y_train,
 	                x_test):
 		'''
@@ -74,9 +72,7 @@ class ARIMA_SVM():
 		forecasted_resid = self._fit_predict_ARIMA()
 		forecast = forecasted_resid + self.pred_test
 		return forecast
-
-
-
+	
 
 if __name__ == '__main__':
 
